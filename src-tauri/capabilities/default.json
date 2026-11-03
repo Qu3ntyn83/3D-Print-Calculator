@@ -1,0 +1,12 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Rechte des Hauptfensters: lokale Datendatei, Speichern-Dialog und Schreiben des gewählten PDFs",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "store:default",
+    "dialog:allow-save",
+    "fs:allow-write-file"
+  ]
+}

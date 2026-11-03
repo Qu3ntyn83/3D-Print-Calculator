@@ -1,0 +1,13 @@
+services:
+  3d-print-calculator:
+    image: ghcr.io/qu3ntyn83/3d-print-calculator:latest
+    container_name: 3d-print-calculator
+    restart: unless-stopped
+    ports:
+      - "8096:8080"          # Webapp unter http://<host>:8096
+    environment:
+      - TZ=Europe/Berlin
+      # - PUID=1000          # Besitzer der Dateien in ./data
+      # - PGID=1000
+    volumes:
+      - ./data:/data         # SQLite-Datenbank mit Druckern, Filamenten, Profilen und Logo

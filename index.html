@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3D Print Calculator</title>
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg width="46" height="46" viewBox="0 0 64 64" role="img" aria-label="#Powerscripting Logo">
+        <defs>
+          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--green)"/><stop offset="1" style="stop-color:var(--blue)"/></linearGradient>
+          <symbol id="logo" viewBox="0 0 64 64">
+            <rect x="2" y="2" width="60" height="60" rx="14" fill="#0b1630" stroke="url(#lg)" stroke-width="3"/>
+            <path d="M15 20 L9 32 L15 44" fill="none" stroke="url(#lg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M49 20 L55 32 L49 44" fill="none" stroke="url(#lg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="32" y="40" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-style="italic" font-weight="700" font-size="21" fill="#e5eefc">#PS</text>
+            <path d="M37 9 L30 22 L35 22 L31 31 L41 17 L36 17 L39 9 Z" fill="url(#lg)"/>
+          </symbol>
+        </defs>
+        <use href="#logo"/>
+      </svg>
+      <div><small>#Powerscripting</small><h1>3D Print <b>Calculator</b></h1></div>
+    </div>
+    <div class="modes" role="group" aria-label="Sprache">
+      <button id="l-de" aria-pressed="true">DE</button>
+      <button id="l-en" aria-pressed="false">EN</button>
+    </div>
+    <span class="save-state" id="savestate" aria-live="polite"></span>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="calc" aria-selected="true">Kalkulation</button>
+    <button role="tab" data-tab="quote" aria-selected="false">Angebot</button>
+    <button role="tab" data-tab="printers" aria-selected="false">Drucker</button>
+    <button role="tab" data-tab="fil" aria-selected="false">Filamente</button>
+    <button role="tab" data-tab="prof" aria-selected="false">Profile &amp; Einstellungen</button>
+  </nav>
+
+  <!-- KALKULATION -->
+  <section id="p-calc" class="calc">
+    <div class="stack">
+      <div class="drop" id="drop">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="url(#lg)" stroke-width="1.6" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="m3 7 9 5 9-5M12 12v10"/></svg>
+        <div style="min-width:0">
+          <div class="file" id="fname">Kabelhalter_v3.gcode.3mf</div>
+          <div class="meta" id="fmeta">Beispieldatei · 2 Druckplatten · aus Bambu Studio</div>
+        </div>
+        <div class="acts">
+          <label class="btn primary" for="f3mf">3MF öffnen</label>
+          <input type="file" id="f3mf" accept=".3mf" hidden>
+          <button class="btn" id="newp">Ohne 3MF kalkulieren</button>
+          <button class="btn ghost" id="demo">Beispiel</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Druckplatte <span class="hint" id="plate-src">aus slice_info.config</span></h2>
+        <div class="plates" id="plates"></div>
+        <div class="grid g4">
+          <div><label class="lbl" for="j-h">Druckzeit</label><div class="unit"><input type="number" id="j-h" min="0" step="0.05"><em>h</em></div></div>
+          <div><label class="lbl" for="j-ppp">Teile / Platte</label><input type="number" id="j-ppp" min="1" step="1"></div>
+          <div><label class="lbl" for="j-purge">Spülmaterial</label><div class="unit"><input type="number" id="j-purge" min="0" step="1"><em>g</em></div></div>
+          <div><label class="lbl" for="j-printer" data-en="Printer">Drucker</label><select id="j-printer"></select></div>
+        </div>
+        <div class="tblwrap" style="margin-top:14px">
+          <table class="lines"><thead><tr><th>Slot</th><th>Filament aus Bestand</th><th class="n" data-en="Amount">Menge</th><th class="n">Kosten</th><th></th></tr></thead><tbody id="lines"></tbody></table>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn ghost" id="addl">+ Filament</button><button class="btn ghost" id="addp">+ Druckplatte</button><button class="btn ghost" id="delp">Druckplatte entfernen</button></div>
+      </div>
+
+      <div class="card">
+        <h2>Auftrag</h2>
+        <div class="grid g4">
+          <div><label class="lbl" for="j-qty">Menge</label><div class="unit"><input type="number" id="j-qty" min="1" step="1"><em>Stk</em></div></div>
+          <div><label class="lbl" for="j-prof">Profil</label><select id="j-prof"></select></div>
+          <div><label class="lbl" for="j-prep">Rüsten / Platte</label><div class="unit"><input type="number" id="j-prep" min="0" step="1"><em>min</em></div></div>
+          <div><label class="lbl" for="j-post">Nacharbeit / Teil</label><div class="unit"><input type="number" id="j-post" min="0" step="0.5"><em>min</em></div></div>
+        </div>
+        <div class="tblwrap" style="margin-top:14px">
+          <table><thead><tr><th>Zubehör je Teil</th><th class="n">Stückpreis</th><th class="n">Anzahl</th><th></th></tr></thead><tbody id="extras"></tbody></table>
+        </div>
+        <button class="btn ghost" id="addx" style="margin-top:10px">+ Zubehör</button>
+      </div>
+    </div>
+
+    <aside class="result card" id="result" aria-live="polite"></aside>
+  </section>
+
+  <!-- ANGEBOT -->
+  <section id="p-quote" hidden>
+    <div class="card" style="max-width:780px;margin:0 auto 16px">
+      <h2>Kunde &amp; Angebot <span class="hint">Beispielkunde</span></h2>
+      <div class="grid g3">
+        <div><label class="lbl" for="q-cust">Name / Firma</label><input type="text" id="q-cust" value="Max Mustermann"></div>
+        <div><label class="lbl" for="q-contact">Ansprechpartner</label><input type="text" id="q-contact" value=""></div>
+        <div><label class="lbl" for="q-mail">E-Mail</label><input type="text" id="q-mail" value="max@example.de"></div>
+        <div><label class="lbl" for="q-street">Straße &amp; Nr.</label><input type="text" id="q-street" value="Musterweg 12"></div>
+        <div><label class="lbl" for="q-zip">PLZ</label><input type="text" id="q-zip" value="20095"></div>
+        <div><label class="lbl" for="q-city">Ort</label><input type="text" id="q-city" value="Hamburg"></div>
+        <div><label class="lbl" for="q-title">Bezeichnung</label><input type="text" id="q-title" value="Kabelhalter v3"></div>
+        <div><label class="lbl" for="q-no">Angebotsnr.</label><input type="text" id="q-no" value="ANG-2026-0017"></div>
+        <div style="display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap"><button class="btn primary" id="q-copy">Als Text kopieren</button><button class="btn" id="q-pdf">PDF speichern</button></div>
+      </div>
+    </div>
+    <div class="quote" id="quote"></div>
+  </section>
+
+  <!-- DRUCKER -->
+  <section id="p-printers" hidden>
+    <div class="card">
+      <h2>Drucker <span class="hint">Beispielwerte, bitte mit deinen Zahlen ersetzen</span></h2>
+      <div class="tblwrap"><table><thead><tr><th>Drucker</th><th class="n">Kaufpreis <span class="cur">€</span></th><th class="n">Lebensdauer h</th><th class="n">Ø Leistung W</th><th class="n">Verschleiß <span class="cur">€</span>/h</th><th class="n">Maschine <span class="cur">€</span>/h</th><th></th></tr></thead><tbody id="ptab"></tbody></table></div>
+      <p class="note">Die Ø Leistung lässt sich mit einem Strommessgerät an der Steckdose ermitteln. Verschleiß deckt Düsen, Hotend, Druckplatten und Filter ab.</p>
+    </div>
+    <form class="card" id="padd" style="margin-top:16px">
+      <h2>Drucker hinzufügen</h2>
+      <div class="grid g3">
+        <div><label class="lbl" for="np-name" data-en="Name">Bezeichnung</label><input type="text" id="np-name" list="printers" placeholder="z. B. Prusa Core One" required><datalist id="printers"><option value="Bambu Lab X1 Carbon"><option value="Bambu Lab P1S"><option value="Bambu Lab P2S"><option value="Bambu Lab A1"><option value="Bambu Lab A1 mini"><option value="Bambu Lab H2D"><option value="Prusa MK4S"><option value="Prusa Core One"><option value="Creality K2 Plus"><option value="Elegoo Centauri Carbon"><option value="Anycubic Kobra S1"></datalist></div>
+        <div><label class="lbl" for="np-price">Kaufpreis</label><div class="unit"><input type="number" id="np-price" step="1" min="0" value="899"><em><span class="cur">€</span></em></div></div>
+        <div><label class="lbl" for="np-life">Lebensdauer</label><div class="unit"><input type="number" id="np-life" step="100" min="1" value="5000"><em>h</em></div></div>
+        <div><label class="lbl" for="np-watt">Ø Leistung</label><div class="unit"><input type="number" id="np-watt" step="5" min="0" value="150"><em>W</em></div></div>
+        <div><label class="lbl" for="np-wear">Verschleiß</label><div class="unit"><input type="number" id="np-wear" step="0.01" min="0" value="0.15"><em><span class="cur">€</span>/h</em></div></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn primary" type="submit">Hinzufügen</button></div>
+      </div>
+    </form>
+  </section>
+
+  <!-- FILAMENTE -->
+  <section id="p-fil" hidden>
+    <div class="card">
+      <h2>Filamente <span class="hint">Preise und Bestand deiner Spulen</span></h2>
+      <div class="tblwrap"><table><thead><tr><th>Filament</th><th>Typ</th><th class="n">Preis / Spule <span class="cur">€</span></th><th class="n">Spule kg</th><th class="n"><span class="cur">€</span>/kg</th><th class="n">Bestand g</th><th></th></tr></thead><tbody id="ftab"></tbody></table></div>
+    </div>
+    <form class="card" id="fadd" style="margin-top:16px">
+      <h2>Filament hinzufügen</h2>
+      <div class="grid g4">
+        <div><label class="lbl" for="n-name" data-en="Name">Bezeichnung</label><input type="text" id="n-name" placeholder="z. B. PLA Silk Gold" required></div>
+        <div><label class="lbl" for="n-brand">Hersteller</label><input type="text" id="n-brand" list="brands" placeholder="Bambu Lab"><datalist id="brands"><option value="Bambu Lab"><option value="Sunlu"><option value="Polymaker"><option value="eSun"><option value="Elegoo"></datalist></div>
+        <div><label class="lbl" for="n-type">Typ</label><input type="text" id="n-type" list="types" placeholder="PLA" required><datalist id="types"><option value="PLA"><option value="PLA-CF"><option value="PETG"><option value="PETG-CF"><option value="ABS"><option value="ASA"><option value="TPU"><option value="PA-CF"><option value="PC"></datalist></div>
+        <div><label class="lbl" for="n-color">Farbe</label><div style="display:flex;gap:8px"><input type="color" id="n-color" value="#d4a017" style="width:42px;height:34px;border:1px solid var(--line);border-radius:7px;background:var(--bg);padding:2px"><input type="text" id="n-hex" value="#d4a017" class="mono" aria-label="Farbcode"></div></div>
+        <div><label class="lbl" for="n-price">Preis / Spule</label><div class="unit"><input type="number" id="n-price" step="0.01" min="0" value="19.99"><em><span class="cur">€</span></em></div></div>
+        <div><label class="lbl" for="n-kg">Spulengewicht</label><div class="unit"><input type="number" id="n-kg" step="0.25" min="0.1" value="1"><em>kg</em></div></div>
+        <div><label class="lbl" for="n-stock">Bestand</label><div class="unit"><input type="number" id="n-stock" step="1" min="0" value="1000"><em>g</em></div></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn primary" type="submit">Hinzufügen</button></div>
+      </div>
+    </form>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="p-prof" hidden>
+    <div class="stack">
+      <div class="card">
+        <h2>Preisprofile</h2>
+        <div class="tblwrap"><table><thead><tr><th>Profil</th><th class="n">Marge %</th><th class="n">Stundensatz <span class="cur">€</span></th><th class="n">Fehldruck-Aufschlag %</th></tr></thead><tbody id="prtab"></tbody></table></div>
+      </div>
+      <div class="card">
+        <h2>Einstellungen</h2>
+        <div class="grid g4">
+          <div><label class="lbl" for="s-kwh">Strompreis</label><div class="unit"><input type="number" id="s-kwh" step="0.01" min="0"><em><span class="cur">€</span>/kWh</em></div></div>
+          <div><label class="lbl" for="s-vat">MwSt</label><div class="unit"><input type="number" id="s-vat" step="1" min="0"><em>%</em></div></div>
+          <div><label class="lbl" for="s-round">Rundung Stückpreis</label><select id="s-round"></select></div>
+          <div style="display:flex;align-items:flex-end"><label class="toggle"><input type="checkbox" id="s-klein"> Kleinunternehmer (§ 19 UStG)</label></div>
+          <div><label class="lbl" for="s-cur">Währung</label><select id="s-cur"></select></div>
+          <div><label class="lbl" for="s-valid">Angebot gültig</label><div class="unit"><input type="number" id="s-valid" step="1" min="1"><em>Tage</em></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Logo für Angebote <span class="hint">PNG, JPG oder SVG, max. 500 KB</span></h2>
+        <div class="drop" style="background:var(--bg)">
+          <div class="logoprev" id="logoprev"></div>
+          <div class="meta" id="logometa" style="min-width:0">Standard: #Powerscripting-Logo</div>
+          <div class="acts">
+            <label class="btn primary" for="s-logo">Logo hochladen</label>
+            <input type="file" id="s-logo" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden>
+            <button class="btn ghost" id="logodel">Standard verwenden</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Deine Daten für Angebote <span class="hint">erscheinen in Absenderzeile und Fußzeile</span></h2>
+        <div class="grid g3" id="sender"></div>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
