@@ -14,6 +14,7 @@
   <a href="https://github.com/Qu3ntyn83/3D-Print-Calculator/pkgs/container/3d-print-calculator"><img src="https://img.shields.io/badge/Docker-ghcr.io-2fa8ff" alt="Docker"></a>
   <img src="https://img.shields.io/badge/Lizenz-MIT-2ee59d" alt="MIT">
   <img src="https://img.shields.io/badge/DE%20%7C%20EN-zweisprachig-8fa4c8" alt="DE | EN">
+  <a href="https://buymeacoffee.com/quentyn83"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-unterst%C3%BCtzen-FFDD00?logo=buymeacoffee&logoColor=black" alt="Buy Me a Coffee"></a>
 </p>
 
 <p align="center"><img src="docs/screenshot-dark.png" alt="Screenshot" width="900"></p>
@@ -127,6 +128,12 @@ Use the `docker-compose.yml` above, then open `http://<host>:8096`. Data is stor
 See the commands in the German section above.
 
 ---
+
+## Unterstützen / Support
+
+Wenn dir das Projekt hilft, freue ich mich über einen Kaffee. *If this project helps you, I'd be happy about a coffee.*
+
+<a href="https://buymeacoffee.com/quentyn83"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="45"></a>
 
 ## Lizenz / License
 
